@@ -1,7 +1,7 @@
 /*
 Hello guys, voici le main code pour nos tests de capteurs
-VERSION : 1.0                                                 DERNIER CHANGEMENT PAR : Aymen
-J'ai implémenter l'accelo, il reste à implémenter le reste des fonctions des capteurs qui sont au local, écrivez moi pour des questions. Les "TODO" c'est des choses à compléter.
+VERSION : 1.1                                                 DERNIER CHANGEMENT PAR : Luka
+J'ai implémenter les photorésistances, je ne sais pas si ça fonctionne, il me faudrait de l'aide pour test. Les "TODO" c'est des choses à compléter.
 */
 
 #include <Wire.h>
@@ -11,13 +11,20 @@ J'ai implémenter l'accelo, il reste à implémenter le reste des fonctions des 
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 //  Change si tu veux
-const uint8_t PIN_PHOTO = A0;
+const uint8_t PIN_PHOTO0 = A0;
+const uint8_t PIN_PHOTO1 = A1;
+const uint8_t PIN_PHOTO2 = A2;
+const uint8_t PIN_PHOTO3 = A3;
 
 // Structure de données (une ligne du tableau)
 struct DataRow {
   uint32_t t_ms = 0;
   float angle_deg = NAN;
   int light_raw = -1;     // photodiode brute (0-1023)
+  float normalized_light0 = 0;
+  float normalized_light1 = 0;
+  float normalized_light2 = 0;
+  float normalized_light3 = 0;
   float pressure_hpa = NAN; // réservé
   float humidity_pct = NAN; // réservé
 };
@@ -73,7 +80,14 @@ void updateAccelerometer(DataRow &r) {
 
 // Lit la photodiode et met à jour row.light_raw
 void updateLight(DataRow &r) {
-  r.light_raw = analogRead(PIN_PHOTO);
+  r.light_raw = analogRead(PIN_PHOTO0);
+  r.normalized_light0 = r.light_raw / 1023;
+  r.light_raw = analogRead(PIN_PHOTO1);
+  r.normalized_light1 = r.light_raw / 1023;
+  r.light_raw = analogRead(PIN_PHOTO2);
+  r.normalized_light2 = r.light_raw / 1023;
+  r.light_raw = analogRead(PIN_PHOTO3);
+  r.normalized_light3 = r.light_raw / 1023;
 }
 
 // Placeholder pression
@@ -85,6 +99,7 @@ void updatePressure(DataRow &r) {
 // Placeholder humidité
 void updateHumidity(DataRow &r) {
   // TODO: remplacer par notre capteur 
+
   r.humidity_pct = NAN;
 }
 //TODO : LES AUTRES CAPTEURS REGARDER DATASHEET 
@@ -111,3 +126,4 @@ void printRowCSV(const DataRow &r) {
 
   Serial.println();
 }
+
