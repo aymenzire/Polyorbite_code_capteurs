@@ -1,7 +1,7 @@
 /*
 Hello guys, voici le main code pour nos tests de capteurs
-VERSION : 1.1                                                 DERNIER CHANGEMENT PAR : Luka
-J'ai implémenter les photorésistances, je ne sais pas si ça fonctionne, il me faudrait de l'aide pour test. Les "TODO" c'est des choses à compléter.
+VERSION : 1.2                                                 DERNIER CHANGEMENT PAR : Luka
+Le code pour les photorésistances devrait fonctionné, il a été testé. J'ai modifié la pin du PIN_PHOTO. Jsp comment appeler les variables pour les photorésistances(Aymen va faire le tableau) Les "TODO" c'est des choses à compléter.
 */
 
 #include <Wire.h>
@@ -11,10 +11,12 @@ J'ai implémenter les photorésistances, je ne sais pas si ça fonctionne, il me
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 //  Change si tu veux
-const uint8_t PIN_PHOTO0 = A0;
-const uint8_t PIN_PHOTO1 = A1;
-const uint8_t PIN_PHOTO2 = A2;
-const uint8_t PIN_PHOTO3 = A3;
+const uint8_t PIN_PHOTO = A4;
+float PR0 = A0;
+float PR1 = A1;
+float PR2 = A2;
+float PR3 = A3;
+float Res10k = 10000.0;
 
 // Structure de données (une ligne du tableau)
 struct DataRow {
@@ -32,7 +34,7 @@ struct DataRow {
 DataRow row;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Wire.begin();
 
   pinMode(PIN_PHOTO, INPUT);
@@ -80,14 +82,22 @@ void updateAccelerometer(DataRow &r) {
 
 // Lit la photodiode et met à jour row.light_raw
 void updateLight(DataRow &r) {
-  r.light_raw = analogRead(PIN_PHOTO0);
-  r.normalized_light0 = r.light_raw / 1023;
-  r.light_raw = analogRead(PIN_PHOTO1);
-  r.normalized_light1 = r.light_raw / 1023;
-  r.light_raw = analogRead(PIN_PHOTO2);
-  r.normalized_light2 = r.light_raw / 1023;
-  r.light_raw = analogRead(PIN_PHOTO3);
-  r.normalized_light3 = r.light_raw / 1023;
+//  r.light_raw = analogRead(PIN_PHOTO); //je ne sais pas si je dois utiliser light raw ou non
+  float I0 = analogRead(PR0);
+  float V0 = map(I0, 0, 1023, 0 , 10000) / Res10k; //on divise par 10000.0, car map() donne un nombre entier, mais on veut + de précision
+  r.normalized_light0 = V0;
+
+  float I1 = analogRead(PR1);
+  float V1 = map(I1, 0, 1023, 0 , 10000) / Res10k;
+  r.normalized_light1 = V1;
+
+  float I2 = analogRead(PR2);
+  float V2 = map(I2, 0, 1023, 0 , 10000) / Res10k;
+  r.normalized_light2 = V2;
+
+  float I3 = analogRead(PR3);
+  float V3 = map(I3, 0, 1023, 0 , 10000) / Res10k;
+  r.normalized_light3 = V3;
 }
 
 // Placeholder pression
